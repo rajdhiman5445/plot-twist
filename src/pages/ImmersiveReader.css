@@ -1,0 +1,128 @@
+/* Re-using base reader layout for bars consistency */
+@import './Reader.css';
+
+.immersive-reader {
+  position: relative;
+  min-height: 100vh;
+  color: #f7f2e9;
+  font-family: 'League Spartan', sans-serif;
+  overflow-x: hidden;
+}
+
+.immersive-reader__bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    135deg, 
+    hsl(calc(200 - var(--read-progress) * 40), 20%, 8%) 0%,
+    hsl(calc(220 - var(--read-progress) * 40), 25%, 12%) 50%,
+    hsl(calc(240 - var(--read-progress) * 40), 30%, 6%) 100%
+  );
+  transition: background 0.5s ease;
+}
+
+/* Viewport & Focus Window */
+.immersive-reader__viewport {
+  position: relative;
+  width: 100%;
+}
+
+.immersive-reader__scroll-spacer {
+  width: 100%;
+  pointer-events: none;
+}
+
+.immersive-reader__focus-window {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15vh 10vw;
+  z-index: 10;
+  pointer-events: none;
+  transition: all 0.5s ease;
+}
+
+.reader--full-width .immersive-reader__focus-window {
+  padding: 10vh 5vw;
+}
+
+.immersive-reader__chunk-container {
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.immersive-reader__chunk {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(30px) scale(0.98);
+  filter: blur(15px);
+  transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  pointer-events: none;
+}
+
+.immersive-reader__chunk.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  pointer-events: auto;
+}
+
+.immersive-reader__chunk.past {
+  transform: translateY(-50px);
+  opacity: 0;
+}
+
+.immersive-reader__chunk.future {
+  transform: translateY(50px);
+}
+
+/* Typography */
+.immersive-reader__chunk p {
+  line-height: 1.6;
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 300;
+  text-align: center; /* Matching image preference */
+}
+
+.immersive-reader__chunk h1 {
+  font-size: 3.5rem;
+  color: #d46b32;
+  margin-bottom: 1rem;
+}
+
+.immersive-reader__chunk h2 {
+  font-size: 2rem;
+  opacity: 0.8;
+}
+
+.immersive-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.5rem;
+  color: #f7f2e9;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .immersive-reader__focus-window {
+    padding: 10vh 24px;
+  }
+  
+  .immersive-reader__chunk p {
+    font-size: 1.6rem;
+    line-height: 1.5;
+  }
+}

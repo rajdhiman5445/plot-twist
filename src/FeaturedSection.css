@@ -1,0 +1,99 @@
+.featured-card {
+  position: relative;
+  width: 100%;
+  margin: 30px auto 0;
+  padding: 27px 48px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #366966 0%, #2f4475 100%);
+  box-shadow: 
+    18px 24px 42px rgba(0, 0, 0, 0.28),
+    -8px -8px 24px rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+}
+
+.featured-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.featured-card__title {
+  font-family: 'League Spartan', system-ui, sans-serif;
+  font-size: 30px;
+  margin: 10px 0 4px;
+  line-height: 1;
+  font-weight: 600;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.featured-card__subheading {
+  font-size: 20px;
+  margin: 4px 0 0;
+  opacity: 0.9;
+  font-family: 'League Spartan', system-ui, sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.featured-card__view-all {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.featured-card__view-all:hover {
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.featured-card__grid {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scrollbar-width: none; /* hides scrollbar on Firefox */
+}
+
+.featured-card__grid::-webkit-scrollbar {
+  display: none; /* hides scrollbar on Chrome/Safari */
+}
+
+@media (max-width: 1120px) {
+  .featured-card {
+    padding: 24px 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-card {
+    padding: 20px 24px;
+    margin-top: 30px;
+  }
+  
+  .featured-card__header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .featured-card__view-all {
+    align-self: flex-start;
+  }
+  
+  .featured-card__title {
+    font-size: 26px;
+  }
+
+  .featured-card__grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+  }
+}

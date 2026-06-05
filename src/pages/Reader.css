@@ -1,0 +1,550 @@
+.reader {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 100px 20px 140px;
+  font-family: 'League Spartan', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.reader--full-width {
+  max-width: 100%;
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
+@media (max-width: 1024px) {
+  .reader__desktop-only {
+    display: none !important;
+  }
+}
+
+/* Themes */
+.reader--theme-dark::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #121212 0%, #1a1a1a 58%, #0a0a0a 100%);
+  z-index: -1;
+}
+
+.reader--theme-light::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #f0f0f0 0%, #f9f9f9 58%, #e0e0e0 100%);
+  z-index: -1;
+}
+
+.reader--theme-dark {
+  color: #e0e0e0;
+}
+
+.reader--theme-light {
+  color: #1a1a1a;
+}
+
+.reader--theme-light .reader__header {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.reader--theme-light .reader__controls-bar {
+  background: rgba(240, 240, 240, 0.85);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.reader--theme-light .reader__sidebar {
+  background: #f9f9f9;
+  color: #333;
+}
+
+.reader--theme-light .reader__book-title,
+.reader--theme-light .reader__sidebar-header h2,
+.reader--theme-light .reader__sidebar-close,
+.reader--theme-light .reader__chapter-item,
+.reader--theme-light .reader__markdown {
+  color: #1a1a1a;
+}
+
+.reader--theme-light .reader__setting-btn,
+.reader--theme-light .reader__nav-btn {
+  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.reader--theme-light .reader__note-form textarea,
+.reader--theme-light .reader__note-item,
+.reader--theme-light .reader__note-text {
+  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.reader--theme-light .reader__controls-divider {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.reader__header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 32px;
+  background: rgba(43, 48, 40, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+  transform: translateY(-100%);
+}
+
+.reader__header--visible {
+  transform: translateY(0);
+}
+
+/* Controls Bar (Bottom) */
+.reader__controls-bar {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translate(-50%, 150%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(43, 48, 40, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: max-content;
+  max-width: 90vw;
+}
+
+.reader__controls-bar--visible {
+  transform: translate(-50%, 0);
+}
+
+.reader__progress-container {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.reader__progress-fill {
+  height: 100%;
+  background: #d46b32;
+  transition: width 0.3s ease;
+}
+
+.reader__controls-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.reader__controls-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.reader__settings-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reader__setting-btn,
+.reader__nav-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f7f2e9;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.reader__setting-btn:hover:not(:disabled),
+.reader__nav-btn:hover:not(:disabled) {
+  background: #d46b32;
+  border-color: #d46b32;
+  transform: translateY(-1px);
+}
+
+.reader__setting-btn:disabled,
+.reader__nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.reader__theme-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s;
+  padding: 0;
+}
+
+.reader__theme-btn.active {
+  border-color: #d46b32;
+  transform: scale(1.1);
+}
+
+.reader__theme-btn--default { background: #2B3028; border-color: rgba(255,255,255,0.2); }
+.reader__theme-btn--dark { background: #121212; border-color: rgba(255,255,255,0.2); }
+.reader__theme-btn--light { background: #f0f0f0; border-color: rgba(0,0,0,0.2); }
+
+.reader__setting-btn--chapters {
+  background: #8c5230;
+  border: none;
+}
+
+/* Sidebar */
+.reader__sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  background: #2b3028;
+  z-index: 2000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+}
+
+.reader__sidebar--open {
+  transform: translateX(0);
+}
+
+.reader__sidebar-header {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.reader__sidebar-header h2 {
+  margin: 0;
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.8rem;
+  color: #f7f2e9;
+}
+
+.reader__sidebar-close {
+  background: none;
+  border: none;
+  color: #f7f2e9;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.reader__chapter-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.reader__chapter-item {
+  padding: 16px 24px;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  color: #f7f2e9;
+  transition: background 0.2s;
+}
+
+.reader__chapter-item:hover {
+  background: rgba(212, 107, 50, 0.1);
+}
+
+.reader__chapter-item--active {
+  background: rgba(212, 107, 50, 0.2);
+  color: #d46b32;
+  font-weight: bold;
+}
+
+.reader__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1500;
+}
+
+.reader__back {
+  color: #d46b32;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+  z-index: 2;
+}
+
+.reader__title-wrap {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 100%;
+  max-width: 60%;
+  pointer-events: none;
+}
+
+.reader__title-wrap * {
+  pointer-events: auto;
+}
+
+.reader__book-title {
+  margin: 0;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.7rem;
+  line-height: 1.1;
+  color: #f7f2e9;
+}
+
+.reader__chapter-title {
+  margin: 2px 0 0;
+  font-size: 1rem;
+  color: #d46b32;
+  font-weight: 500;
+}
+
+.reader__content {
+  min-height: 400px;
+}
+
+.reader__markdown {
+  line-height: 1.8;
+  color: #f7f2e9;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.reader__markdown h1,
+.reader__markdown h2,
+.reader__markdown h3 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  color: #d46b32;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.reader__sidebar--notes {
+  left: 0;
+  right: auto;
+  transform: translateX(-100%);
+}
+
+.reader__sidebar--notes.reader__sidebar--open {
+  transform: translateX(0);
+}
+
+.reader__note-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reader__note-form textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f7f2e9;
+  padding: 12px;
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.reader__notes-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.reader__note-item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reader__note-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #d46b32;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.reader__note-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  color: #f7f2e9;
+}
+
+.reader__note-delete {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  opacity: 0.7;
+}
+
+.reader__note-delete:hover {
+  opacity: 1;
+}
+
+.reader__no-notes {
+  text-align: center;
+  opacity: 0.5;
+  font-size: 0.9rem;
+  margin-top: 40px;
+}
+
+/* Selection Popup */
+.reader__selection-popup {
+  transform: translate(-50%, -100%);
+  background: #d46b32;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  white-space: nowrap;
+}
+
+.reader__selection-popup::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: #d46b32 transparent transparent transparent;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .reader {
+    padding: 80px 24px 180px;
+  }
+
+  .reader__header {
+    padding: 15px 24px;
+  }
+
+  .reader__book-title {
+    font-size: 1.5rem;
+  }
+
+  .reader__controls-bar {
+    width: calc(100% - 32px);
+    bottom: 20px;
+    padding: 16px;
+    border-radius: 24px;
+  }
+
+  .reader__controls-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "prev next"
+      "font theme"
+      "notes chapters";
+    gap: 12px;
+    width: 100%;
+  }
+
+  .reader__controls-divider {
+    display: none;
+  }
+
+  .reader__nav-btn:first-child {
+    grid-area: prev;
+    width: 100%;
+  }
+
+  .reader__nav-btn:last-child {
+    grid-area: next;
+    width: 100%;
+  }
+
+  .reader__settings-group--font {
+    grid-area: font;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .reader__settings-group--font .reader__setting-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .reader__settings-group--theme {
+    grid-area: theme;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .reader__setting-btn--notes {
+    grid-area: notes;
+    width: 100%;
+  }
+
+  .reader__setting-btn--chapters {
+    grid-area: chapters;
+    width: 100%;
+  }
+
+  .reader__sidebar {
+    width: 85%;
+    max-width: 320px;
+  }
+}
+
+.reader-state.error {
+  color: #ff6b6b;
+}

@@ -1,0 +1,44 @@
+.hero2-card__image-wrap {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 46%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.hero2-card__image-wrap--loaded {
+  opacity: 1;
+}
+
+.hero2-card__image {
+  width: 110%;
+  height: 110%;
+  object-fit: contain;
+  object-position: bottom right;
+}
+
+.hero2-card__image-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, #0a0b0c 0%, transparent 20%);
+  pointer-events: none;
+}
+
+.hero2-card__image-wrap {
+  align-items: flex-end;
+}
+
+.hero2-card__image {
+  object-position: bottom center;
+}
+
+@media (max-width: 1120px) {
+  .hero2-card__image-wrap {
+    display: none;
+  }
+}

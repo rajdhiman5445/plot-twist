@@ -1,0 +1,103 @@
+.book-card {
+  display: block;
+  width: fit-content;
+  padding: 12px;
+  border-radius: 24px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: transparent;
+}
+
+.book-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.book-card__image-container {
+  width: 160px;
+  aspect-ratio: 1410 / 2250;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  justify-self: center;
+}
+
+.book-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.book-card__image--loaded {
+  opacity: 1;
+}
+
+.book-card__info {
+  margin-top: 12px;
+  text-align: left;
+}
+
+.book-card__title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.book-card__author {
+  font-size: 0.9rem;
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .book-card__image-container {
+    width: 180px;
+  }
+}
+
+/* Skeleton Loading Styles */
+.book-card--skeleton {
+  pointer-events: none;
+}
+
+.book-card__skeleton-image {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  animation: skeleton-pulse 2s infinite ease-in-out;
+}
+
+.book-card__skeleton-text {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+  animation: skeleton-pulse 2s infinite ease-in-out;
+}
+
+.book-card__skeleton-title {
+  width: 80%;
+  height: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.book-card__skeleton-author {
+  width: 50%;
+  height: 0.9rem;
+}
+
+@keyframes skeleton-pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
