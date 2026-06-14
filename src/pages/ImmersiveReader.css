@@ -3,10 +3,17 @@
 
 .immersive-reader {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
   color: #f7f2e9;
   font-family: 'League Spartan', sans-serif;
-  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.immersive-reader::-webkit-scrollbar {
+  display: none;
 }
 
 .immersive-reader__bg {
@@ -22,68 +29,53 @@
   transition: background 0.5s ease;
 }
 
-/* Viewport & Focus Window */
+/* Viewport with Scroll Snap */
 .immersive-reader__viewport {
-  position: relative;
   width: 100%;
 }
 
-.immersive-reader__scroll-spacer {
+.immersive-reader__chunk-list {
   width: 100%;
-  pointer-events: none;
-}
-
-.immersive-reader__focus-window {
-  position: fixed;
-  inset: 0;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 15vh 10vw;
-  z-index: 10;
-  pointer-events: none;
-  transition: all 0.5s ease;
-}
-
-.reader--full-width .immersive-reader__focus-window {
-  padding: 10vh 5vw;
-}
-
-.immersive-reader__chunk-container {
-  width: 100%;
-  max-width: 900px;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: auto;
+  flex-direction: column;
 }
 
 .immersive-reader__chunk {
-  position: absolute;
+  min-height: 100vh;
   width: 100%;
-  opacity: 0;
-  transform: translateY(30px) scale(0.98);
-  filter: blur(15px);
-  transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  scroll-snap-align: center;
+  padding: 0 10vw;
+  transition: all 0.4s ease;
+  box-sizing: border-box;
+}
+
+.immersive-reader__chunk-content {
+  max-width: 900px;
+  width: 100%;
   text-align: center;
-  pointer-events: none;
+  transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, filter;
 }
 
-.immersive-reader__chunk.active {
+.reader--full-width .immersive-reader__chunk-content {
+  max-width: 95%;
+}
+
+/* Peeking Effect */
+.immersive-reader__chunk.past .immersive-reader__chunk-content,
+.immersive-reader__chunk.future .immersive-reader__chunk-content {
+  opacity: 0.15;
+  filter: blur(8px);
+  transform: translateY(0); /* Removed scale */
+}
+
+.immersive-reader__chunk.active .immersive-reader__chunk-content {
   opacity: 1;
-  transform: translateY(0) scale(1);
   filter: blur(0);
-  pointer-events: auto;
-}
-
-.immersive-reader__chunk.past {
-  transform: translateY(-50px);
-  opacity: 0;
-}
-
-.immersive-reader__chunk.future {
-  transform: translateY(50px);
+  transform: translateY(0); /* Removed scale */
 }
 
 /* Typography */
@@ -92,18 +84,23 @@
   margin: 0;
   font-size: 2.2rem;
   font-weight: 300;
-  text-align: center; /* Matching image preference */
 }
 
 .immersive-reader__chunk h1 {
-  font-size: 3.5rem;
+  font-size: 4rem;
   color: #d46b32;
   margin-bottom: 1rem;
+  font-family: 'Instrument Serif', serif;
 }
 
 .immersive-reader__chunk h2 {
-  font-size: 2rem;
+  font-size: 2.2rem;
   opacity: 0.8;
+  font-weight: 400;
+}
+
+.immersive-reader__bottom-spacer {
+  height: 50vh; /* Allow snapping to the last chunk comfortably */
 }
 
 .immersive-state {
@@ -117,12 +114,16 @@
 
 /* Mobile Adjustments */
 @media (max-width: 640px) {
-  .immersive-reader__focus-window {
-    padding: 10vh 24px;
+  .immersive-reader__chunk {
+    padding: 0 24px;
   }
   
   .immersive-reader__chunk p {
     font-size: 1.6rem;
     line-height: 1.5;
+  }
+
+  .immersive-reader__chunk h1 {
+    font-size: 3rem;
   }
 }

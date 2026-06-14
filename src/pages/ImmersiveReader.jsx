@@ -96,18 +96,15 @@ function ImmersiveReader() {
       return
     }
 
-    // 1. Split by paragraphs first
     const paragraphs = markdownContent
       .split(/\n\n+/)
       .map(p => p.trim())
       .filter(p => p.length > 0)
 
     const refinedChunks = []
-
-    // 2. Sub-divide long paragraphs into roughly 50-word segments
     paragraphs.forEach(para => {
       const words = para.split(/\s+/)
-      if (words.length <= 65) { // Threshold for sub-dividing
+      if (words.length <= 65) {
         refinedChunks.push(para)
       } else {
         for (let i = 0; i < words.length; i += 50) {
@@ -116,39 +113,56 @@ function ImmersiveReader() {
       }
     })
     
-    // Add Chapter Header as first chunk
     const chapter = book?.chapters[currentChapterIndex]
     const headerChunk = `# Chapter ${chapter?.order}\n## ${chapter?.title}`
     
     setChunks([headerChunk, ...refinedChunks])
     setActiveChunkIndex(0)
+    
+    // Reset scroll when chapter changes
     window.scrollTo(0, 0)
   }, [markdownContent, currentChapterIndex, book])
 
-  // Virtual Scroll Sync: Map scroll depth to active chunk
+  // Native Scroll Snapping & Tracking
   useEffect(() => {
-    const handleScroll = () => {
-      const winScroll = window.pageYOffset || document.documentElement.scrollTop
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight
-      if (height <= 0) return
+    if (chunks.length === 0) return
 
-      const progress = winScroll / height
-      setScrollProgress(progress)
-
-      if (chunks.length > 0) {
-        const index = Math.min(
-          chunks.length - 1,
-          Math.floor(progress * chunks.length)
-        )
-        setActiveChunkIndex(index)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.getAttribute('data-index'), 10)
+            setActiveChunkIndex(index)
+            setScrollProgress(index / (chunks.length - 1))
+          }
+        })
+      },
+      { 
+        threshold: 0.4,
+        rootMargin: '-5% 0px -5% 0px'
       }
+    )
+
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.immersive-reader__chunk')
+      elements.forEach((el) => observer.observe(el))
+    }, 200)
+
+    return () => {
+      clearTimeout(timer)
+      observer.disconnect()
     }
+  }, [chunks])
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [chunks.length])
+  // Controls Visibility Logic
+  useEffect(() => {
+    if (scrollDirection === 'down') {
+      setIsHeaderVisible(false)
+    } else {
+      setIsHeaderVisible(true)
+    }
+  }, [scrollDirection])
 
-  // Reused Handlers
   const toggleHeader = () => {
     if (isSidebarOpen || isNotesOpen) return
     setIsHeaderVisible((prev) => !prev)
@@ -292,26 +306,28 @@ function ImmersiveReader() {
         </button>
       )}
 
-      {/* Immersive Viewport: Only 1 Chunk Visible at a time */}
+      {/* Immersive Viewport: Vertical list with scroll-snap */}
       <main className="immersive-reader__viewport">
-        <div className="immersive-reader__scroll-spacer" style={{ height: `${chunks.length * 100}vh` }}></div>
-        
-        <div className="immersive-reader__focus-window">
-          {isFetchingChapter ? (
-            <div className="immersive-state">Loading focus chunks...</div>
-          ) : (
-            <div className="immersive-reader__chunk-container" style={{ fontSize: `${fontSize}rem` }}>
-              {chunks.map((chunk, index) => (
-                <div 
-                  key={index}
-                  className={`immersive-reader__chunk ${index === activeChunkIndex ? 'active' : ''} ${index < activeChunkIndex ? 'past' : ''} ${index > activeChunkIndex ? 'future' : ''}`}
-                >
+        {isFetchingChapter ? (
+          <div className="immersive-state">Loading focus chunks...</div>
+        ) : (
+          <div className="immersive-reader__chunk-list" style={{ fontSize: `${fontSize}rem` }}>
+            {chunks.map((chunk, index) => (
+              <section 
+                key={index}
+                data-index={index}
+                className={`immersive-reader__chunk ${index === activeChunkIndex ? 'active' : ''} ${index < activeChunkIndex ? 'past' : 'future'}`}
+              >
+                <div className="immersive-reader__chunk-content">
                   <ReactMarkdown>{chunk}</ReactMarkdown>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </section>
+            ))}
+            
+            {/* End of chapter buffer */}
+            <div className="immersive-reader__bottom-spacer"></div>
+          </div>
+        )}
       </main>
 
       {/* Reused Controls Bar */}
