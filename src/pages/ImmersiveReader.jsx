@@ -196,6 +196,23 @@ function ImmersiveReader() {
 
   const deleteNote = (id) => setNotes(notes.filter(note => note.id !== id))
 
+  // Keyboard Navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (isSidebarOpen || isNotesOpen) return
+
+      if (e.key === 'ArrowLeft') {
+        setCurrentChapterIndex((prev) => Math.max(0, prev - 1))
+      } else if (e.key === 'ArrowRight') {
+        const totalChapters = book?.chapters?.length || 0
+        setCurrentChapterIndex((prev) => Math.min(totalChapters - 1, prev + 1))
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [book, isSidebarOpen, isNotesOpen])
+
   // Fetch Chapter
   useEffect(() => {
     if (!book || !book.chapters || !book.chapters[currentChapterIndex]) return
@@ -233,13 +250,26 @@ function ImmersiveReader() {
   const bookNotes = notes.filter(n => n.bookId === bookId)
 
   return (
-    <div className={`immersive-reader reader--theme-${theme} ${isFullWidth ? 'reader--full-width' : ''}`} onClick={toggleHeader} style={{ '--read-progress': scrollProgress }}>
-      <div className="immersive-reader__bg"></div>
+    <div 
+      className={`immersive-reader reader--theme-${theme} ${isFullWidth ? 'reader--full-width' : ''}`} 
+      onClick={toggleHeader} 
+      style={{ 
+        '--read-progress': scrollProgress,
+        '--chapter-accent': currentChapter?.accentColor || '#d46b32',
+        '--book-cover': `url("${book?.coverImage}")`
+      }}
+    >
+      <div className="immersive-reader__bg">
+        <div className="immersive-reader__aura-blob immersive-reader__aura-blob--1"></div>
+        <div className="immersive-reader__aura-blob immersive-reader__aura-blob--2"></div>
+        <div className="immersive-reader__aura-blob immersive-reader__aura-blob--3"></div>
+        <div className="immersive-reader__aura-blob immersive-reader__aura-blob--4"></div>
+      </div>
       
       {/* Reused Classic Header */}
       <header className={`reader__header ${isHeaderVisible ? 'reader__header--visible' : ''}`}>
         <Link to={`/books/${bookId}`} className="reader__back" onClick={handleSettingClick}>
-          &larr; Exit Immersive
+          &larr; Exit<span className="reader__back-extra"> Immersive</span>
         </Link>
         <div className="reader__title-wrap">
           <h1 className="reader__book-title">{book.title}</h1>
@@ -337,26 +367,23 @@ function ImmersiveReader() {
         </div>
         <div className="reader__controls-inner">
           <button className="reader__nav-btn" disabled={currentChapterIndex === 0} onClick={(e) => { e.stopPropagation(); setCurrentChapterIndex(p => p - 1); }}>&larr; Prev</button>
+          
           <div className="reader__controls-divider"></div>
-          <div className="reader__settings-group reader__settings-group--font">
-            <button className="reader__setting-btn" onClick={() => setFontSize(p => Math.max(0.8, p - 0.1))}>A-</button>
-            <button className="reader__setting-btn" onClick={() => setFontSize(p => Math.min(3.5, p + 0.1))}>A+</button>
-          </div>
-          <div className="reader__controls-divider"></div>
-          <div className="reader__settings-group reader__settings-group--theme">
-            <button className={`reader__theme-btn reader__theme-btn--default ${theme === 'default' ? 'active' : ''}`} onClick={() => setTheme('default')}></button>
-            <button className={`reader__theme-btn reader__theme-btn--dark ${theme === 'dark' ? 'active' : ''}`} onClick={() => setTheme('dark')}></button>
-            <button className={`reader__theme-btn reader__theme-btn--light ${theme === 'light' ? 'active' : ''}`} onClick={() => setTheme('light')}></button>
-          </div>
-          <div className="reader__controls-divider reader__desktop-only"></div>
+          
           <button className="reader__setting-btn reader__desktop-only" onClick={() => setIsFullWidth(p => !p)}>
             {isFullWidth ? 'Centered' : 'Full Width'}
           </button>
+          
           <div className="reader__controls-divider"></div>
+          
           <button className="reader__setting-btn reader__setting-btn--notes" onClick={() => setIsNotesOpen(true)}>Notes</button>
+          
           <div className="reader__controls-divider"></div>
+          
           <button className="reader__setting-btn reader__setting-btn--chapters" onClick={() => setIsSidebarOpen(true)}>Chapters</button>
+          
           <div className="reader__controls-divider"></div>
+          
           <button className="reader__nav-btn" disabled={currentChapterIndex === chapters.length - 1} onClick={(e) => { e.stopPropagation(); setCurrentChapterIndex(p => p + 1); }}>Next &rarr;</button>
         </div>
       </div>
