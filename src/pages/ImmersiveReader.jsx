@@ -43,6 +43,15 @@ function ImmersiveReader() {
   })
   const [scrollProgress, setScrollProgress] = useState(0)
 
+  // Centralized Chapter Change Logic
+  const handleChapterChange = (newIndex) => {
+    setCurrentChapterIndex(newIndex)
+    setActiveChunkIndex(0)
+    setScrollProgress(0)
+    localStorage.setItem(`plot-twist-chunk-${bookId}`, 0) // Explicitly force chunk to 0 before fetch starts
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }
+
   // Save progress
   useEffect(() => {
     if (bookId) {
@@ -59,19 +68,22 @@ function ImmersiveReader() {
 
   // Restore Scroll Position on Chunk Load
   useEffect(() => {
-    if (chunks.length > 0) {
-      const savedChunk = localStorage.getItem(`plot-twist-chunk-${bookId}`)
-      if (savedChunk) {
-        const index = parseInt(savedChunk, 10)
+    if (chunks.length > 0 && !isFetchingChapter) {
+      setTimeout(() => {
+        const savedChunk = localStorage.getItem(`plot-twist-chunk-${bookId}`)
+        const index = savedChunk ? parseInt(savedChunk, 10) : 0
+        
         if (index > 0 && index < chunks.length) {
           const elements = document.querySelectorAll('.immersive-reader__chunk')
           if (elements[index]) {
             elements[index].scrollIntoView({ behavior: 'instant', block: 'center' })
           }
+        } else if (index === 0) {
+          window.scrollTo({ top: 0, behavior: 'instant' })
         }
-      }
+      }, 100) // Small delay to allow DOM to finish rendering chunks
     }
-  }, [chunks.length, bookId])
+  }, [chunks.length, bookId, isFetchingChapter])
 
   // Save notes
   useEffect(() => {
@@ -144,14 +156,6 @@ function ImmersiveReader() {
     
     const newChunks = [headerChunk, ...refinedChunks]
     setChunks(newChunks)
-
-    // Reset scroll ONLY if we are moving to a NEW chapter that isn't the one saved
-    const savedProgress = localStorage.getItem(`plot-twist-progress-${bookId}`)
-    if (savedProgress && parseInt(savedProgress, 10) !== currentChapterIndex) {
-      setActiveChunkIndex(0)
-      localStorage.setItem(`plot-twist-chunk-${bookId}`, 0)
-      window.scrollTo(0, 0)
-    }
   }, [markdownContent, currentChapterIndex, book, bookId])
 
   // Native Scroll Snapping & Tracking
@@ -204,7 +208,7 @@ function ImmersiveReader() {
   const handleNoteClick = (chapterOrder) => {
     const index = book.chapters.findIndex(ch => ch.order === chapterOrder)
     if (index !== -1) {
-      setCurrentChapterIndex(index)
+      handleChapterChange(index)
       setIsNotesOpen(false)
     }
   }
@@ -236,10 +240,10 @@ function ImmersiveReader() {
       if (isSidebarOpen || isNotesOpen) return
 
       if (e.key === 'ArrowLeft') {
-        setCurrentChapterIndex((prev) => Math.max(0, prev - 1))
+        handleChapterChange(Math.max(0, currentChapterIndex - 1))
       } else if (e.key === 'ArrowRight') {
         const totalChapters = book?.chapters?.length || 0
-        setCurrentChapterIndex((prev) => Math.min(totalChapters - 1, prev + 1))
+        handleChapterChange(Math.min(totalChapters - 1, currentChapterIndex + 1))
       }
     }
 
@@ -262,10 +266,10 @@ function ImmersiveReader() {
         if (diffX > 0) {
           // Swipe Left -> Next
           const totalChapters = book?.chapters?.length || 0
-          setCurrentChapterIndex((prev) => Math.min(totalChapters - 1, prev + 1))
+          handleChapterChange(Math.min(totalChapters - 1, currentChapterIndex + 1))
         } else {
           // Swipe Right -> Prev
-          setCurrentChapterIndex((prev) => Math.max(0, prev - 1))
+          handleChapterChange(Math.max(0, currentChapterIndex - 1))
         }
       }
     }
@@ -279,7 +283,7 @@ function ImmersiveReader() {
       document.removeEventListener('touchstart', handleTouchStart)
       document.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [book, isSidebarOpen, isNotesOpen])
+  }, [book, isSidebarOpen, isNotesOpen, currentChapterIndex]) // added currentChapterIndex to deps
 
   // Fetch Chapter
   useEffect(() => {
@@ -437,7 +441,7 @@ function ImmersiveReader() {
           <div className="reader__progress-fill" style={{ width: `${scrollProgress * 100}%` }}></div>
         </div>
         <div className="reader__controls-inner">
-          <button className="reader__nav-btn" disabled={currentChapterIndex === 0} onClick={(e) => { e.stopPropagation(); setCurrentChapterIndex(p => p - 1); }}>&larr; Prev</button>
+          <button className="reader__nav-btn" disabled={currentChapterIndex === 0} onClick={(e) => { e.stopPropagation(); handleChapterChange(currentChapterIndex - 1); }}>&larr; Prev</button>
           
           <div className="reader__controls-divider"></div>
           
@@ -455,7 +459,7 @@ function ImmersiveReader() {
           
           <div className="reader__controls-divider"></div>
           
-          <button className="reader__nav-btn" disabled={currentChapterIndex === chapters.length - 1} onClick={(e) => { e.stopPropagation(); setCurrentChapterIndex(p => p + 1); }}>Next &rarr;</button>
+          <button className="reader__nav-btn" disabled={currentChapterIndex === chapters.length - 1} onClick={(e) => { e.stopPropagation(); handleChapterChange(currentChapterIndex + 1); }}>Next &rarr;</button>
         </div>
       </div>
     </div>
