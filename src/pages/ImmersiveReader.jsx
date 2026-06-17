@@ -37,7 +37,10 @@ function ImmersiveReader() {
 
   // Immersive Specific State
   const [chunks, setChunks] = useState([])
-  const [activeChunkIndex, setActiveChunkIndex] = useState(0)
+  const [activeChunkIndex, setActiveChunkIndex] = useState(() => {
+    const saved = localStorage.getItem(`plot-twist-chunk-${bookId}`)
+    return saved ? parseInt(saved, 10) : 0
+  })
   const [scrollProgress, setScrollProgress] = useState(0)
 
   // Save progress
@@ -46,6 +49,29 @@ function ImmersiveReader() {
       localStorage.setItem(`plot-twist-progress-${bookId}`, currentChapterIndex)
     }
   }, [bookId, currentChapterIndex])
+
+  // Save specific chunk progress
+  useEffect(() => {
+    if (bookId && chunks.length > 0) {
+      localStorage.setItem(`plot-twist-chunk-${bookId}`, activeChunkIndex)
+    }
+  }, [bookId, activeChunkIndex, chunks.length])
+
+  // Restore Scroll Position on Chunk Load
+  useEffect(() => {
+    if (chunks.length > 0) {
+      const savedChunk = localStorage.getItem(`plot-twist-chunk-${bookId}`)
+      if (savedChunk) {
+        const index = parseInt(savedChunk, 10)
+        if (index > 0 && index < chunks.length) {
+          const elements = document.querySelectorAll('.immersive-reader__chunk')
+          if (elements[index]) {
+            elements[index].scrollIntoView({ behavior: 'instant', block: 'center' })
+          }
+        }
+      }
+    }
+  }, [chunks.length, bookId])
 
   // Save notes
   useEffect(() => {
@@ -116,12 +142,17 @@ function ImmersiveReader() {
     const chapter = book?.chapters[currentChapterIndex]
     const headerChunk = `# Chapter ${chapter?.order}\n## ${chapter?.title}`
     
-    setChunks([headerChunk, ...refinedChunks])
-    setActiveChunkIndex(0)
-    
-    // Reset scroll when chapter changes
-    window.scrollTo(0, 0)
-  }, [markdownContent, currentChapterIndex, book])
+    const newChunks = [headerChunk, ...refinedChunks]
+    setChunks(newChunks)
+
+    // Reset scroll ONLY if we are moving to a NEW chapter that isn't the one saved
+    const savedProgress = localStorage.getItem(`plot-twist-progress-${bookId}`)
+    if (savedProgress && parseInt(savedProgress, 10) !== currentChapterIndex) {
+      setActiveChunkIndex(0)
+      localStorage.setItem(`plot-twist-chunk-${bookId}`, 0)
+      window.scrollTo(0, 0)
+    }
+  }, [markdownContent, currentChapterIndex, book, bookId])
 
   // Native Scroll Snapping & Tracking
   useEffect(() => {
@@ -376,7 +407,10 @@ function ImmersiveReader() {
       {/* Immersive Viewport: Vertical list with scroll-snap */}
       <main className="immersive-reader__viewport">
         {isFetchingChapter ? (
-          <div className="immersive-state">Loading focus chunks...</div>
+          <div className="immersive-reader__loading-focus">
+            <p>Setting the scene for</p>
+            <h2>Chapter {currentChapter?.order}: {currentChapter?.title}</h2>
+          </div>
         ) : (
           <div className="immersive-reader__chunk-list" style={{ fontSize: `${fontSize}rem` }}>
             {chunks.map((chunk, index) => (
