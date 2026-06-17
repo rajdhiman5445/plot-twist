@@ -196,8 +196,11 @@ function ImmersiveReader() {
 
   const deleteNote = (id) => setNotes(notes.filter(note => note.id !== id))
 
-  // Keyboard Navigation
+  // Keyboard & Swipe Navigation
   useEffect(() => {
+    let touchStartX = 0
+    let touchStartY = 0
+
     const handleKeyDown = (e) => {
       if (isSidebarOpen || isNotesOpen) return
 
@@ -209,8 +212,42 @@ function ImmersiveReader() {
       }
     }
 
+    const handleTouchStart = (e) => {
+      touchStartX = e.touches[0].clientX
+      touchStartY = e.touches[0].clientY
+    }
+
+    const handleTouchEnd = (e) => {
+      if (isSidebarOpen || isNotesOpen) return
+      
+      const touchEndX = e.changedTouches[0].clientX
+      const touchEndY = e.changedTouches[0].clientY
+      
+      const diffX = touchStartX - touchEndX
+      const diffY = touchStartY - touchEndY
+
+      // Require a strong horizontal swipe and minimal vertical movement to trigger
+      if (Math.abs(diffX) > 100 && Math.abs(diffY) < 60) {
+        if (diffX > 0) {
+          // Swipe Left -> Next
+          const totalChapters = book?.chapters?.length || 0
+          setCurrentChapterIndex((prev) => Math.min(totalChapters - 1, prev + 1))
+        } else {
+          // Swipe Right -> Prev
+          setCurrentChapterIndex((prev) => Math.max(0, prev - 1))
+        }
+      }
+    }
+
     window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener('touchstart', handleTouchStart, { passive: true })
+    document.addEventListener('touchend', handleTouchEnd, { passive: true })
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('touchstart', handleTouchStart)
+      document.removeEventListener('touchend', handleTouchEnd)
+    }
   }, [book, isSidebarOpen, isNotesOpen])
 
   // Fetch Chapter
