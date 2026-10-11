@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './hero2.css'
 
-import heroImage from './assets/hero2.png'
+import heroImage from './assets/hero_dsgn.png'
 
 function Hero2() {
   const [isImageLoaded, setIsImageLoaded] = useState(false)
@@ -10,9 +10,9 @@ function Hero2() {
     <section className="hero-card">
       <div className="hero-card__content">
         <p className="hero-card__eyebrow">Editor's Pick</p>
-        <h1 className="hero-card__title">Consume Ideas from World's Sharpest Minds</h1>
+        <h1 className="hero-card__title">Your Portal to the World of Fiction.</h1>
         <p className="hero-card__description">
-          Curated books that changes how you think, work, and live.
+          Curated books to explore new possibilities.
         </p>
         <button className="hero-card__button" type="button">
           Explore Now

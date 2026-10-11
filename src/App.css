@@ -46,9 +46,7 @@
   padding: 38px 46px;
   border-radius: 30px;
   color: #f8f1e8;
-  background:
-    linear-gradient(102deg, rgb(10 11 12 / 98%) 0%, rgb(10 11 12 / 96%) 52%, rgb(10 11 12 / 92%) 100%),
-    linear-gradient(180deg, rgb(255 255 255 / 7%) 0%, rgb(0 0 0 / 0%) 100%);
+  background: #000000;
   box-shadow: 18px 24px 42px rgb(0 0 0 / 28%);
 }
 
